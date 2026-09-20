@@ -160,3 +160,6 @@ The application remains a human-directed project: AI assistance was used during 
 ## Licence
 
 This project is provided for learning and development purposes.
+
+## Developer
+Frederick Mensah - 20/09/2026
