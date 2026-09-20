@@ -109,7 +109,7 @@ def decode_metar(raw: str) -> dict[str, Any]:
             description = CLOUDS[kind]
             if height:
                 description += f" at {int(height) * 100:,} ft"
-            cloud_summaries.append(description + ".")
+            cloud_summaries.append(description.capitalize() + ".")
             details.append(("Clouds", description.capitalize()))
         elif match := re.fullmatch(r"(M?\d{2})/(M?\d{2})", token):
             temp_c, dew_c = map(parse_signed_temperature, match.groups())
