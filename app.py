@@ -74,7 +74,7 @@ def decode_metar(raw: str) -> dict[str, Any]:
     dew_point: str | None = None
     pressure: str | None = None
     wind_summary: str | None = None
-    cloud_summary: str | None = None
+    cloud_summaries: list[str] = []
 
     for index, token in enumerate(tokens[1:], start=1):
         if re.fullmatch(r"\d{6}Z", token):
@@ -83,14 +83,15 @@ def decode_metar(raw: str) -> dict[str, Any]:
             direction, knots, gusts = match.groups()
             mph = round(int(knots) * 1.15078)
             direction_text = "variable directions" if direction == "VRB" else f"{direction}°"
-            wind_summary = f"Wind {direction_text} at {mph} mph"
-            if gusts:
-                wind_summary += f", gusting to {round(int(gusts) * 1.15078)} mph"
-            wind_summary += "."
-            details.append(("Wind", wind_summary[:-1]))
-        elif token == "00000KT":
-            wind_summary = "Calm winds."
-            details.append(("Wind", "Calm"))
+            if direction == "000" and int(knots) == 0 and not gusts:
+                wind_summary = "Calm winds."
+                details.append(("Wind", "Calm"))
+            else:
+                wind_summary = f"Wind {direction_text} at {mph} mph"
+                if gusts:
+                    wind_summary += f", gusting to {round(int(gusts) * 1.15078)} mph"
+                wind_summary += "."
+                details.append(("Wind", wind_summary[:-1]))
         elif token == "CAVOK" or token == "9999" or token.endswith("SM") or re.fullmatch(r"\d{4}", token):
             # In reports such as "1 1/2SM", the preceding whole number belongs
             # to the fractional visibility group.
@@ -108,7 +109,7 @@ def decode_metar(raw: str) -> dict[str, Any]:
             description = CLOUDS[kind]
             if height:
                 description += f" at {int(height) * 100:,} ft"
-            cloud_summary = description + "."
+            cloud_summaries.append(description + ".")
             details.append(("Clouds", description.capitalize()))
         elif match := re.fullmatch(r"(M?\d{2})/(M?\d{2})", token):
             temp_c, dew_c = map(parse_signed_temperature, match.groups())
@@ -126,8 +127,8 @@ def decode_metar(raw: str) -> dict[str, Any]:
     headline_parts = []
     if conditions:
         headline_parts.append("Conditions include " + ", ".join(conditions) + ".")
-    if cloud_summary:
-        headline_parts.append(cloud_summary.capitalize())
+    if cloud_summaries:
+        headline_parts.extend(cloud_summaries)
     else:
         headline_parts.append("No cloud layer was reported.")
     if temperature:
