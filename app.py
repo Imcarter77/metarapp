@@ -1,4 +1,4 @@
-"""METAR Made Friendly — a small Flask METAR reader."""
+"""METAR Made Friendly by Freddie — a small Flask METAR reader."""
 
 from __future__ import annotations
 
