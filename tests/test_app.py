@@ -48,7 +48,7 @@ def test_decode_metar_handles_us_fractional_visibility():
 
     assert "Visibility is 1 1/2 miles." in result["summary"]
     assert "light snow" in result["summary"]
-    assert "overcast skies at 1,000 ft." in result["summary"]
+    assert "Overcast skies at 1,000 ft." in result["summary"]
 
 
 def test_fetch_metar_uses_mocked_weather_service():
